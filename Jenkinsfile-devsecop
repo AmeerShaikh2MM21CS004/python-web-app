@@ -1,0 +1,72 @@
+pipeline {
+    agent any 
+
+    tools {
+        jdk 'jdk'
+        maven 'maven'
+    }    
+
+    stages {
+        stage("Git Checkout") {
+            steps {
+                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/AmeerShaikh2MM21CS004/blogging-app.git'
+            }
+        }
+
+        stage("Compile") {
+            steps {
+                sh "mvn clean compile"
+            }
+        }
+
+        stage("Sonarqube Analysis") {
+            steps {
+                script {
+                    withSonarQubeEnv(credentialsId: 'sonar-token') {
+                        sh 'mvn sonar:sonar'
+                    }
+                }
+            }
+        }
+        
+        stage("Build") {
+            steps {
+                sh "mvn clean install"
+            }
+        }
+
+        stage("OWASP Dependency Check") {
+            steps {
+                dependencyCheck additionalArguments: '--scan ./ --format HTML', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.html'
+            }
+        }
+        
+        stage("Docker Build & Push") {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_cred', toolName: 'docker') {
+                        sh "docker build -t blogapp ."
+                        sh "docker tag blogapp ameershaikh14/blogapp:latest"
+                        sh "docker push ameershaikh14/blogapp:latest"
+                    }
+                }
+            }
+        }
+        
+        stage("TRIVY"){
+            steps{
+                sh "trivy image ameershaikh14/blogapp:latest"
+            }
+        }
+        
+        stage("Deploy Using Docker"){
+            steps{
+                sh " docker run -d --name blogapp -p 8082:8080 ameershaikh14/blogapp:latest "
+            }
+        }        
+
+
+
+    }  // End of stages
+}  // End of pipeline
