@@ -1,0 +1,74 @@
+pipeline {
+    agent any 
+
+    environment {
+        DOCKER_IMAGE = "ameershaikh14/djangoapp"
+        DOCKER_TAG = "latest"
+        CONTAINER_NAME = "djangoapp"
+        PORT = "8000"
+    }
+
+    tools {
+        python 'Python3'  // Ensure Python tool is configured in Jenkins
+    }    
+
+    stages {
+        stage("Git Checkout") {
+            steps {
+                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/AmeerShaikh2MM21CS004/django-app.git'
+            }
+        }
+
+        stage("Setup Virtual Environment") {
+            steps {
+                sh """
+                python -m venv venv
+                source venv/bin/activate
+                pip install --upgrade pip
+                pip install -r requirements.txt
+                """
+            }
+        }
+
+        stage("Run Tests") {
+            steps {
+                sh """
+                source venv/bin/activate
+                python manage.py test
+                """
+            }
+        }
+
+        stage("OWASP Dependency Check") {
+            steps {
+                dependencyCheck additionalArguments: '--scan ./ --format HTML', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.html'
+            }
+        }
+
+        stage("Docker Build & Push") {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'Docker_cred', toolName: 'docker') {
+                        sh """
+                        docker build -t python-web-app:latest .
+                        docker push python-web-app:latest
+                        """
+                    }
+                }
+            }
+        }
+
+        stage("TRIVY Security Scan") {
+            steps {
+                sh "trivy image python-web-app:latest"
+            }
+        }
+
+        stage("Deploy Using Docker") {
+            steps {
+                sh " docker run -d --name blogapp -p 8082:8080 ameershaikh14/blogapp:latest " 
+            }
+        }        
+    }  
+}
