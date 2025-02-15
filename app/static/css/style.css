@@ -1,0 +1,113 @@
+/* Reset & General Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Header */
+header {
+    background-color: #222;
+    padding: 20px;
+    text-align: center;
+    color: yellow;
+}
+
+header h2 {
+    font-size: 28px;
+    margin-bottom: 5px;
+}
+
+header h4 {
+    font-size: 18px;
+    font-weight: normal;
+}
+
+/* Main Section */
+section {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 900px;
+    margin: 20px auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Table */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 12px;
+    text-align: center;
+}
+
+th {
+    background: #555;
+    color: white;
+}
+
+td a {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+}
+
+td a:hover {
+    text-decoration: underline;
+}
+
+/* Article */
+article {
+    width: 100%;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 5px;
+}
+
+article h1 {
+    font-size: 24px;
+    color: #444;
+}
+
+article p {
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+/* Footer */
+footer {
+    background-color: #222;
+    padding: 15px;
+    text-align: center;
+    color: yellow;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    section {
+        flex-direction: column;
+    }
+
+    article {
+        width: 100%;
+    }
+}
